@@ -17,8 +17,8 @@ def __gather_all__(dir="plugins"):
     
     for module_name in modules_lst:
         if module_name.split('.')[-1] == 'py':
-            m = imp.load_source('module', dir + os.sep + module_name)
-            x = threading.Thread(target=worker, args=(m,))
+            mpath = dir + os.sep + module_name
+            x = threading.Thread(target=worker, args=(mpath,))
             threads.append(x)
 
     for x in threads:
@@ -30,8 +30,10 @@ def __gather_all__(dir="plugins"):
     return grabbed
 
 
-def worker(m):
+def worker(mpath):
     global grabbed
+    imp.load_source('module', mpath)
     g = m.Grabber()
+    print(g)
     thread_grabbed = g.grab_all()
     grabbed += thread_grabbed

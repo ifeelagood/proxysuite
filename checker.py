@@ -4,7 +4,7 @@ import threading
 import json
 
 
-def worker(q, live, args):
+def worker(q, live, args, i):
 
     while not q.empty():
 
@@ -18,9 +18,19 @@ def worker(q, live, args):
         q.task_done()
 
 
-def basic_worker(q, live, args):
+def basic_worker(q, live, args, i):
+    
+    if i == 0:
+        startsize = q.qsize()
     
     while not q.empty():
+        
+        remaining = q.qsize()
+        if i == 0 and remaining % 1000 == 0:
+            
+            completed = remaining - startsize
+            completion_percentage = round((completed / startsize)*100,2)
+            print(f"Completed: {completed}, Remaining: {remaining}, Progress: {completion_percentage}%")
 
         proxy_address = q.get()
         p = Proxy(proxy_address)
@@ -44,12 +54,12 @@ def check_all(args):
     for p in unchecked:
         q.put(p)
 
-    threads = []
-
     worker_target = worker if not args.basic else basic_worker
 
+    threads = []
+
     for i in range(args.threads):
-        threads.append(threading.Thread(target=worker_target, args=(q,live, args)))
+        threads.append(threading.Thread(target=worker_target, args=(q, live, args, i)))
 
     for x in threads:
         x.start()
