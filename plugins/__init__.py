@@ -34,6 +34,5 @@ def worker(mpath):
     global grabbed
     m = imp.load_source('module', mpath)
     g = m.Grabber()
-    print(g)
     thread_grabbed = g.grab_all()
     grabbed += thread_grabbed
