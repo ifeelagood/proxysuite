@@ -105,9 +105,47 @@ class Proxy():
                 self.ssl = False
                 return True
 
-
         return True
 
+    def check_basic(self):
+
+        proxy_dict = {'http': self.address, 'https': self.address}
+
+        dead_exceptions = (requests.exceptions.ConnectionError, requests.exceptions.HTTPError, socks.GeneralProxyError, requests.exceptions.ChunkedEncodingError, requests.exceptions.ProxyError, socks.ProxyConnectionError, urllib3.exceptions.ConnectTimeoutError, requests.exceptions.SSLError, requests.exceptions.ReadTimeout, requests.exceptions.TooManyRedirects)
+
+        t = 15 # TODO fixme
+
+        # basic http test
+        http_url = 'http://api.ipify.org'
+
+        try:
+            r = requests.get(http_url, proxies=proxy_dict, timeout=t)
+            r.raise_for_status()
+            self.http = True
+
+        except dead_exceptions:
+            self.http = False
+
+
+        # ssl test
+        https_url = 'https://api.ipify.org'
+
+        try:
+            r = requests.get(https_url, proxies=proxy_dict, timeout=t)
+            r.raise_for_status()
+            self.ssl = True
+
+        except dead_exceptions as e: # TODO find errors specific to proxies where http works but not https
+            self.ssl = False
+
+        if (not self.ssl) and (not self.http):
+            return False
+        else:
+            self.working = True
+
+        return True            
+            
+            
     def return_dict(self):
 
         self_dict = dict(

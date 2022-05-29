@@ -21,6 +21,9 @@ def gather_runner(outfile):
     
     gathered = gather.gather_all()
 
+    if not outfile.parent.exists():
+        os.mkdir(outfile.parent)
+
     with open(outfile, 'w') as f:
         for p in gathered:
             f.write(p + '\n')
@@ -29,8 +32,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Scrape and check proxies.')
     parser.add_argument('action', choices=['check', 'gather'])
-    # parser.add_argument('-o', '--output', nargs=1, type=pathlib.Path)
-    # parser.add_argument('-i', '--input', nargs=1, type=pathlib.Path)
+    # parser.add_argument('-o', '--output', nargs=1, type=pathlib.Path, default=None)
+    # parser.add_argument('-i', '--input', nargs=1, type=pathlib.Path, default=None)
     args = parser.parse_args()
     
     # the reason im not setting a default is because it will change between check and gather

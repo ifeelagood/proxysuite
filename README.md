@@ -12,6 +12,9 @@ Gathers all proxies to `output/scraped.txt`
 
 Checks all proxies from `output/scraped.txt` and writes to `output/live.json`
 
+
+Better cli args planned for future.
+
 Design
 ------
 
@@ -22,27 +25,12 @@ Modifications
 
 You can add more text sources by adding them to the list `data/sources.py
 
-In order to add sources which require complex parsing, you can copy `plugins/template.py` to for example `plugins/myplugin.py`. Then make the required edits to return a list of proxies with protocol as a list. You can then edit `gather.py` and import the plugin and insert before the return statement like below:
-
-```
-from plugins import myplugin
-
-...
-
-def gather_all():
-
-    ...
-
-    g = myplugin.Grabber()
-    grabbed += g.grab_all()
-  
-    return grabbed
-```
+In order to add sources which require complex parsing, you can copy `plugins/template.py` to for example `plugins/myplugin.py`. Then make the required edits to return a list of proxies with protocol as a list. The module will be automatically loaded scraped from is setup correctly
 
 Future Plans
 ------------
 
 - [ ] Rework cli arguments
-- [ ] Rework gather code
+- [X] Rework gather code
 - [ ] Add more user options
-- [ ] Abitity to enable basic checks
+- [-] Abitity to enable basic checks

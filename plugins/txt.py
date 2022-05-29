@@ -4,10 +4,11 @@ import requests
 
 class Grabber():
 
-    def __init__(self, source_dict, types=['http', 'socks4', 'socks5']):
+    def __init__(self, types=['http', 'socks4', 'socks5']):
 
         self.types = types
-        self.sources = source_dict
+        
+        self.sources = dict(http=data.sources.HTTP,socks4=data.sources.SOCKS4, socks5=data.sources.SOCKS5)
         self.exceptions = {}
 
 
