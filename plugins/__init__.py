@@ -1,8 +1,11 @@
 #!/usr/bin/python3
 
-import imp,os
+import imp,os, threading
 
 def __gather_all__(dir="plugins"):
+    
+    global grabbed
+    grabbed = []
     
     modules_lst = os.listdir(dir)
     
@@ -10,12 +13,25 @@ def __gather_all__(dir="plugins"):
     modules_lst.remove('spys_one.py')
     
 
-    grabbed = []
+    threads = []
     
     for module_name in modules_lst:
         if module_name.split('.')[-1] == 'py':
             m = imp.load_source('module', dir + os.sep + module_name)
-            g = m.Grabber()
-            grabbed += g.grab_all()
+            x = threading.Thread(target=worker, args=(m,))
+            threads.append(x)
+
+    for x in threads:
+        x.start()
+        
+    for x in threads:
+        x.join()
     
-    return grabbed        
+    return grabbed
+
+
+def worker(m):
+    global grabbed
+    g = m.Grabber()
+    thread_grabbed = g.grab_all()
+    grabbed += thread_grabbed

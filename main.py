@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import os
 import json
 import pathlib
 import argparse
@@ -13,8 +14,8 @@ def checker_runner():
     
     checked = checker.check_all(args)
 
-    with open(outfile, 'w') as f:
-        json.dump(checked, outfile)
+    with open(args.output, 'w') as f:
+        json.dump(checked, f)
 
 def gather_runner():
     
