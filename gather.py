@@ -27,8 +27,8 @@ def gather_all():
 	g = spys_me.Grabber()
 	grabbed += g.grab_all()
 
-	g = spys_one.Grabber()
-	grabbed += g.grab_all()
+	# g = spys_one.Grabber()
+	# grabbed += g.grab_all()
 
 	g = checkerproxy_net.Grabber()
 	grabbed += g.grab_all()
