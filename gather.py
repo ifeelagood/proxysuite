@@ -36,7 +36,6 @@ def gather_all():
 	g = openproxy.Grabber()
 	grabbed += g.grab_all()
 
-
 	g = proxies_wtf.Grabber()
 	grabbed += g.grab_all()
 

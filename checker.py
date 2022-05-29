@@ -19,7 +19,7 @@ def worker(q, live):
 
 
 
-def check_all(proxy_list, thread_num=1000):
+def check_all(proxy_list, thread_num=500):
 
     live = []
 
