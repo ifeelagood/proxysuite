@@ -32,7 +32,7 @@ def __gather_all__(dir="plugins"):
 
 def worker(mpath):
     global grabbed
-    imp.load_source('module', mpath)
+    m = imp.load_source('module', mpath)
     g = m.Grabber()
     print(g)
     thread_grabbed = g.grab_all()
