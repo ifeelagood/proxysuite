@@ -20,15 +20,15 @@ def worker(q, live, args, i):
 
 def basic_worker(q, live, args, i):
     
-    if i == 0:
-        startsize = q.qsize()
+    
+    startsize = q.qsize()
     
     while not q.empty():
         
         remaining = q.qsize()
-        if i == 0 and remaining % 1000 == 0:
+        if remaining % 1000 == 0:
             
-            completed = remaining - startsize
+            completed = startsize - remaining
             completion_percentage = round((completed / startsize)*100,2)
             print(f"Completed: {completed}, Remaining: {remaining}, Progress: {completion_percentage}%")
 
