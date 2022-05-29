@@ -1,6 +1,11 @@
 #!/usr/bin/python3
 
 import requests
+import sys
+
+sys.path.append('../')
+
+from data import sources
 
 class Grabber():
 
@@ -8,7 +13,7 @@ class Grabber():
 
         self.types = types
         
-        self.sources = dict(http=data.sources.HTTP,socks4=data.sources.SOCKS4, socks5=data.sources.SOCKS5)
+        self.sources = dict(http=sources.HTTP,socks4=sources.SOCKS4, socks5=sources.SOCKS5)
         self.exceptions = {}
 
 

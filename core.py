@@ -24,13 +24,13 @@ class Proxy():
         self.fraud_score = None
 
 
-    def check(self):
+    def check(self, timeout):
 
         proxy_dict = {'http': self.address, 'https': self.address}
 
         dead_exceptions = (requests.exceptions.ConnectionError, requests.exceptions.HTTPError, socks.GeneralProxyError, requests.exceptions.ChunkedEncodingError, requests.exceptions.ProxyError, socks.ProxyConnectionError, urllib3.exceptions.ConnectTimeoutError, requests.exceptions.SSLError, requests.exceptions.ReadTimeout, requests.exceptions.TooManyRedirects)
 
-        t = 15 # TODO fixme
+        t = timeout
 
         # basic http test
         http_url = 'http://api.ipify.org'
@@ -107,13 +107,13 @@ class Proxy():
 
         return True
 
-    def check_basic(self):
+    def check_basic(self, timeout):
 
         proxy_dict = {'http': self.address, 'https': self.address}
 
         dead_exceptions = (requests.exceptions.ConnectionError, requests.exceptions.HTTPError, socks.GeneralProxyError, requests.exceptions.ChunkedEncodingError, requests.exceptions.ProxyError, socks.ProxyConnectionError, urllib3.exceptions.ConnectTimeoutError, requests.exceptions.SSLError, requests.exceptions.ReadTimeout, requests.exceptions.TooManyRedirects)
 
-        t = 15 # TODO fixme
+        t = timeout
 
         # basic http test
         http_url = 'http://api.ipify.org'
