@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+# PLEASE CONSIDER CREATING PULL REQUEST FOR ANY MODULES MADE, IT REALLY DOES HELP!
+
 import requests
 # import re
 # import json
@@ -7,26 +9,17 @@ import requests
 
 class Grabber():
 
-	def __init__(self, types=['http', 'socks4', 'socks5']):
+    def __init__(self, types=['http', 'socks4', 'socks5']):
 
-		self.types = types
-		self.exceptions = []
+        self.types = types
+        self.exceptions = []
+  
+        self.name = "template"
+        self.url = ""
 
-	def scrape_site(self, url, type):
 
-		scraped = []
+    def grab_all(self):
 
-		# stuff here
+        grabbed = []
 
-		return scraped
-
-	def grab_all(self):
-
-		scraped_proxies = []
-
-		# and here
-
-		dupes_removed = []
-		dupes_removed = [proxy for proxy in scraped_proxies if proxy not in dupes_removed]
-
-		return dupes_removed
+        return grabbed

@@ -1,48 +1,54 @@
-from core import Proxy
-from queue import Queue
 import threading
 import json
 
+from queue import Queue
 
-def worker(q, live, args, i):
-
-    while not q.empty():
-
-        proxy_address = q.get()
-        p = Proxy(proxy_address)
-        if p.check(args.timeout):   
-            p_dict = p.return_dict()
-            print(f"[LIVE] {p_dict['address']}")
-            live.append(p_dict)
-
-        q.task_done()
+from proxy import Proxy
+from arguments import args
+from logger import log
 
 
-def basic_worker(q, live, args, i):
+def worker(q, lock, live):
     
-    
+    global reported
     startsize = q.qsize()
+    reported = startsize
     
     while not q.empty():
         
         remaining = q.qsize()
-        if remaining % 1000 == 0:
+        if remaining % 1000 == 0 and remaining != reported:
             
+            lock.acquire()
+            reported = remaining
             completed = startsize - remaining
-            completion_percentage = round((completed / startsize)*100,2)
-            print(f"Completed: {completed}, Remaining: {remaining}, Progress: {completion_percentage}%")
+            completion_percentage = round((completed / startsize)*100, 2)
+            log.info(f"Completed: {completed}, Remaining: {remaining}, Progress: {completion_percentage}%")
+            lock.release()
 
         proxy_address = q.get()
         p = Proxy(proxy_address)
-        if p.check_basic(args.timeout):   
+        
+        
+        if p.check():
+            
+            log.info(f"[LIVE] {p.address}")
+            
             p_dict = p.return_dict()
-            print(f"[LIVE] {p_dict['address']}")
+            
+            lock.acquire()
             live.append(p_dict)
+            lock.release()
+
+        else:
+            log.debug(f"[DEAD] {p.address}")
 
         q.task_done()
 
 
-def check_all(args):
+
+
+def check_all():
 
     with open(args.input, 'r') as f:
         unchecked = [line.rstrip('\n') for line in f.readlines()]
@@ -54,12 +60,12 @@ def check_all(args):
     for p in unchecked:
         q.put(p)
 
-    worker_target = worker if not args.basic else basic_worker
-
+    lock = threading.Lock()
+    
     threads = []
 
     for i in range(args.threads):
-        threads.append(threading.Thread(target=worker_target, args=(q, live, args, i)))
+        threads.append(threading.Thread(target=worker, args=(q, lock, live)))
 
     for x in threads:
         x.start()

@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 
 import requests
-from selenium import webdriver
-
 # import re
 # import json
 # from bs4 import BeautifulSoup
@@ -18,9 +16,9 @@ class Grabber():
 
 		scraped_proxies = []
 
-		driver = webdriver.Firefox()
-		driver.get("https://cyber-hub.pw/proxy.txt")
-
+		r = requests.get("https://cyber-hub.pw/proxy.txt")
+		r.raise_for_status()
+		scraped_proxies = r.text
 
 		dupes_removed = []
 		dupes_removed = [proxy for proxy in scraped_proxies if proxy not in dupes_removed]

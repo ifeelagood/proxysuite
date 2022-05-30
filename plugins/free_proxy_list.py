@@ -10,6 +10,7 @@ class Grabber():
         self.types = types
         self.exceptions = {}
 
+
     def scrape_site(self, url, type):
 
         try:
@@ -30,6 +31,7 @@ class Grabber():
             if len(fields):
                 scraped.append(f"{type}://{fields[0].contents[0]}:{fields[1].contents[0]}")
         return scraped
+
 
     def grab_all(self):
 

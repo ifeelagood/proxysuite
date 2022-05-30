@@ -14,6 +14,7 @@ class Grabber():
                     2: 'http',
                     3: 'socks4',
                     4: 'socks5'}
+        
     def scrape_site(self, url):
 
         scraped = []
