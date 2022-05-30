@@ -3,7 +3,7 @@ ProxySuite - A proxy scraper and checker
 
 Basic Usage/Installation
 -----
-***
+
 Install requirements with `pip3 install -r requirements.txt`
 
 `python3 main.py {check,gather}`
@@ -14,14 +14,14 @@ Install requirements with `pip3 install -r requirements.txt`
 
 **PLEASE RUN `python3 main.py --help` FOR A FULL LIST AND EXPLAINATION OF CLI ARGS**
 
-***
+
 
 Design
 ------
 
 * The checker uses synchronous request with paralell threading (default 500) to check each proxy, whether it has ssl supported, the fraud detection score and the whois data. I decided to use threading as the async http module for python has poor socks proxy support. However, I am going to try an asynchronous branch in the near future. Fraud score is checked not for nefarious activity, but as many services will not work on blacklisted ips.
 
-***
+
 
 Modifications
 -------------
@@ -30,7 +30,7 @@ Modifications
 
 * In order to add sources which require complex parsing, you can copy `plugins/template.py` to for example `plugins/myplugin.py`. Then make the required edits to return a list of proxies with protocol as a list. The module will be automatically loaded and run when gathering if done correctly.
 
-***
+
 
 FAQ / Notes
 -----------
