@@ -44,12 +44,12 @@ args = parser.parse_args()
 # set defaults if necessary; they change depending on action
 if args.action == 'check':
     
-    args.input = args.input if args.input else pathlib.Path('output/scraped.txt')
+    args.input = args.input if args.input else pathlib.Path('output/scraped.json')
     args.output = args.output if args.output else pathlib.Path('output/live.json')
 
 if args.action == 'gather':
 
-    args.output = args.output if args.output else pathlib.Path('output/scraped.txt')
+    args.output = args.output if args.output else pathlib.Path('output/scraped.json')
 
 
 # check validity of args

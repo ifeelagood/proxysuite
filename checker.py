@@ -3,7 +3,7 @@ import json
 
 from queue import Queue
 
-from proxy import Proxy
+from proxy import Proxy, load_proxies
 from arguments import args
 from logger import log
 
@@ -50,8 +50,8 @@ def worker(q, lock, live):
 
 def check_all():
 
-    with open(args.input, 'r') as f:
-        unchecked = [line.rstrip('\n') for line in f.readlines()]
+    unchecked = load_proxies(args.input)
+    log.debug(f"Loaded proxies from file {args.input}")
 
     live = []
 

@@ -11,7 +11,7 @@ import re
 import json
 
 from arguments import args
-from logging import log
+from logger import log
 
 
 # constants
@@ -28,6 +28,7 @@ class Proxy():
 
         self.address = address
         self.scheme = urlparse(address).scheme
+        
         self.host, self.port = urlparse(address).netloc.split(':')
         self.working = False
         self.borked = False
@@ -39,7 +40,8 @@ class Proxy():
         self.proxy_dict = {'http': self.address, 'https': self.address}
 
         self.source = source
-    
+
+
     def get(self, url):
         
         try:
@@ -65,6 +67,7 @@ class Proxy():
             
         else:
             return False
+
 
     def fraud_lookup(self):
         
@@ -140,18 +143,21 @@ class Proxy():
     
 
 
-def dump_proxy_obj_file(proxies, outfile=pathlib.Path("output/proxyobjects.json")):
+def dump_proxies(proxies, outfile=pathlib.Path("output/proxyobjects.json")):
     
-    temp_proxy_list = [p.return_dict for p in proxies]
-    temp_proxy_dict = dict(temp_proxy_dict)
-    
+    proxy_list = [p.return_dict() for p in proxies]
+
     with open(outfile, 'w') as f:
-        json.dump(temp_proxy_dict, f)
+        json.dump(proxy_list, f)
 
 
-def load_proxy_obj_file(infile=pathlib.Path("output/proxyobjects.json")):
+def load_proxies(infile=pathlib.Path("output/proxyobjects.json")):
     
-    temp_proxy_dict = {}
+    temp_proxy_list = {}
     
     with open(infile, 'r') as f:
-        json.load(f, temp_proxy_dict)
+        json.load(f, temp_proxy_list)
+        
+    
+        
+    return proxy_dict

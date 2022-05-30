@@ -9,6 +9,7 @@ class Grabber():
 
         self.types = types
         self.exceptions = {}
+        self.name = "free-proxy-list.net,socks-proxy.net"
 
 
     def scrape_site(self, url, type):

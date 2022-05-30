@@ -13,6 +13,8 @@ class Grabber():
 
         self.types = types
         self.exceptions = []
+        self.name = "openproxy.space"
+        
         self.proxy_regex = r'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}:[0-9]{2,5}'
         self.data_regex = r'(?<=data:\[).*(?=\],fetch)'
         self.proto_regex = r'(?<=protocols:).*(?=,anons)'
@@ -43,16 +45,14 @@ class Grabber():
 
     def grab_all(self):
 
-        scraped_proxies = []
+        grabbed = []
 
         base_url = 'https://openproxy.space/list/'
 
         for scheme in self.types:
-            scraped_proxies += self.scrape_site(base_url+scheme)
+            grabbed += self.scrape_site(base_url+scheme)
 
-        dupes_removed = []
-        dupes_removed = [proxy for proxy in scraped_proxies if proxy not in dupes_removed]
 
-        return dupes_removed
+        return grabbed
 
 

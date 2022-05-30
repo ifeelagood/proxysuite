@@ -8,6 +8,8 @@ class Grabber():
 
 		self.types = types
 		self.exceptions = {}
+		self.name = "spys.me"
+
 
 	def scrape_site(self, url, type):
 
@@ -33,7 +35,7 @@ class Grabber():
 
 	def grab_all(self):
 
-		scraped_proxies = []
+		grabbed = []
 
 		socks_url = 'https://spys.me/socks.txt'
 		http_url = 'https://spys.me/proxy.txt'

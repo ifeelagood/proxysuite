@@ -7,6 +7,7 @@ import pathlib
 from arguments import args
 from logger import log, verify_logger_args
 
+import proxy
 import checker
 import gather
 import plugins
@@ -15,26 +16,22 @@ import plugins
 def checker_runner():
     
     checked = checker.check_all()
-    log.debug("check completed. dumping to json...")
+    log.debug("check completed. attempting to write to file...")
 
-    with open(args.output, 'w') as f:
-        json.dump(checked, f)
+    proxy.dump_proxies(checked, args.output)
+    
+    log.info(f"Written output of check to {args.output}")
 
 
 def gather_runner():
     
     # gathered = plugins.__init__.__gather_all__(args, log)
     gathered = gather.gather_all()
-    log.debug(f"gather completed. attempting to write to file")
+    log.debug(f"gather completed. attempting to write to file...")
 
-    if not args.output.parent.exists():
-        os.mkdir(args.output.parent)
-        log.info(f"Created output directory at {args.output.parents}")
 
-    with open(args.output, 'w') as f:
-        for p in gathered:
-            f.write(p + '\n')
-
+    proxy.dump_proxies(gathered, args.output)
+    
     log.info(f"Written output of gather to {args.output}")
 
 

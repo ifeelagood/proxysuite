@@ -15,6 +15,9 @@ class Grabber():
                     3: 'socks4',
                     4: 'socks5'}
         
+        self.name = "checkerproxy.net"
+        
+        
     def scrape_site(self, url):
 
         scraped = []
@@ -33,9 +36,10 @@ class Grabber():
 
         return scraped
 
+
     def grab_all(self):
 
-        scraped_proxies = []
+        grabbed = []
         base_url = "https://checkerproxy.net/api/archive/"
 
         r = requests.get(base_url)
@@ -45,10 +49,6 @@ class Grabber():
 
         for archive in archive_dict:
             url_date = archive['date']
-            scraped_proxies += self.scrape_site(base_url + url_date)
+            grabbed += self.scrape_site(base_url + url_date)
 
-        dupes_removed = []
-        dupes_removed = [proxy for proxy in scraped_proxies if proxy not in dupes_removed]
-
-        return dupes_removed
-
+        return grabbed

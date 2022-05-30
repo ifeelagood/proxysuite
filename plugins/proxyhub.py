@@ -11,12 +11,11 @@ class Grabber():
 
         self.types = types
         self.exceptions = []
+        self.name = "proxyhub.me"
 
     def scrape_site(self, url, pagenum):
 
         scraped = []
-
-        # stuff here
 
         cookie_dict = {'anonymity': 'all', 'page': str(pagenum)}
         r = requests.get(url, cookies=cookie_dict)
@@ -44,20 +43,12 @@ class Grabber():
 
     def grab_all(self):
 
-        scraped_proxies = []
+        grabbed = []
 
         url = 'https://proxyhub.me/'
-        # and here
 
         for i in range(100):
-            scraped_proxies += self.scrape_site(url, i+1)
+            grabbed += self.scrape_site(url, i+1)
 
-        dupes_removed = []
-        dupes_removed = [proxy for proxy in scraped_proxies if proxy not in dupes_removed]
 
-        return dupes_removed
-
-if __name__ == '__main__':
-    g = Grabber()
-    x = g.grab_all()
-    print(x)
+        return grabbed

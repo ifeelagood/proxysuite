@@ -11,10 +11,11 @@ class Grabber():
 
 		self.types = types
 		self.exceptions = []
+		self.name = "proxies.wtf"
 
 	def grab_all(self):
 
-		scraped_proxies = []
+		grabbed = []
 
 		url = "https://proxies.wtf/"
 
@@ -34,14 +35,7 @@ class Grabber():
 		socks4_proxies = [f"socks4://{p}" for p in socks4_raw]
 		socks5_proxies = [f"socks5://{p}" for p in socks5_raw]
 
-		scraped_proxies = http_proxies + socks4_proxies + socks5_proxies
+		grabbed = http_proxies + socks4_proxies + socks5_proxies
 
-		dupes_removed = []
-		dupes_removed = [proxy for proxy in scraped_proxies if proxy not in dupes_removed]
 
-		return dupes_removed
-
-if __name__ == '__main__':
-
-	g = Grabber()
-	print(g.grab_all())
+		return grabbed

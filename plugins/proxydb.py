@@ -9,6 +9,7 @@ class Grabber():
 		
 		self.types = types
 		self.exceptions = []
+		self.name = "ProxyDB"
 
 
 	def grab_all(self):

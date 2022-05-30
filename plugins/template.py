@@ -15,8 +15,6 @@ class Grabber():
         self.exceptions = []
   
         self.name = "template"
-        self.url = ""
-
 
     def grab_all(self):
 
