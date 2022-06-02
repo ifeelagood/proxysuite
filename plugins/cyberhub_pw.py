@@ -7,9 +7,9 @@ from bs4 import BeautifulSoup
 
 class Grabber():
 
-    def __init__(self, types=['http', 'socks4', 'socks5']):
+    def __init__(self):
 
-        self.types = types
+        self.types = ['http', 'socks4', 'socks5']
         self.exceptions = []
         self.name = "cyberhub.pw"
 

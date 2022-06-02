@@ -18,7 +18,7 @@ parser.add_argument('-i', '--input', type=pathlib.Path, default=None, metavar="I
 
 # checker
 parser.add_argument('-b', '--basic', action='store_true', default=False, help="Use only HTTP and SSL test when checking proxies") # couldnt get py3.9 argparse.BooleanOptionalAction to work TODO
-parser.add_argument('-T', '--threads', type=int, default=500, metavar="COUNT", help="Specify number of threads to be used when checkinh proxies (WARNING->Setting this too high will cause problems!)")
+parser.add_argument('-T', '--threads', type=int, default=200, metavar="COUNT", help="Specify number of threads to be used when checkinh proxies (WARNING->Setting this too high will cause problems!)")
 parser.add_argument('-t', '--timeout', type=int, default=15, metavar="SECONDS", help="Specify request timeout in seconds when checking proxies")
 
 # logging
@@ -43,7 +43,7 @@ args = parser.parse_args()
 
 # set defaults if necessary; they change depending on action
 if args.action == 'check':
-    
+
     args.input = args.input if args.input else pathlib.Path('output/scraped.json')
     args.output = args.output if args.output else pathlib.Path('output/live.json')
 

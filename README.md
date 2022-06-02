@@ -19,7 +19,7 @@ Install requirements with `pip3 install -r requirements.txt`
 Design
 ------
 
-* The checker uses synchronous request with paralell threading (default 500) to check each proxy, whether it has ssl supported, the fraud detection score and the whois data. I decided to use threading as the async http module for python has poor socks proxy support. However, I am going to try an asynchronous branch in the near future. Fraud score is checked not for nefarious activity, but as many services will not work on blacklisted ips.
+* The checker uses synchronous request with paralell threading (default 200) to check each proxy, whether it has ssl supported, the fraud detection score and the whois data. I decided to use threading as the async http module for python has poor socks proxy support. However, I am going to try an asynchronous branch in the near future. Fraud score is checked not for nefarious activity, but as many services will not work on blacklisted ips.
 
 
 
@@ -37,19 +37,19 @@ FAQ / Notes
 
 ***
 
-**Q:** *GUI WHEN?* 
+**Q:** *GUI WHEN?*
 
 **A:** I am working on an IPython notebook which will be pushed to main in the near future. This should make it easier for non-gui users.
 
 ***
 
-**Q:** *Why? Why even release this for free?* 
+**Q:** *Why? Why even release this for free?*
 
 **A:** I'm bored, and believe in the open source ideology. Besides, it's written in python so its not like I can really hide my code if I want to.
 
 ***
 
-**Q:** *How many threads are safe to use? What happens if I put in too large a value?* 
+**Q:** *How many threads are safe to use? What happens if I put in too large a value?*
 
 **A:** Each thread will open a file for a socket and potentially more, and there are limits defined by the OS for the maximum number of open files. There is also an OS defined limit on the amount of threads per process. This can be easily changed on linux with the command `ulimit`, but discretion is advised. Not only this, but too many threads can hammer an internet connection. Whether this is a design/requests flaw or a general resource problem, I lose connection sometimes when using too many theads, and it can take a few minutes to come back.
 

@@ -1,23 +1,23 @@
 #!/usr/bin/python3
 
-import requests
-import datetime
 import json
+import requests
+
 
 class Grabber():
 
-    def __init__(self, types=['http', 'socks4', 'socks5']):
+    def __init__(self):
 
-        self.types = types
+        self.types = ['http', 'socks4', 'socks5']
         self.exceptions = {}
         self.proxy_type_dict = {1: 'http',
                     2: 'http',
                     3: 'socks4',
                     4: 'socks5'}
-        
+
         self.name = "checkerproxy.net"
-        
-        
+
+
     def scrape_site(self, url):
 
         scraped = []
