@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import os
+import glob
 import threading
 import re
 import imp
@@ -53,9 +54,8 @@ def gather_all():
 
 def load_plugins(plugin_dir="plugins"):
 
-    plugins = os.listdir(plugin_dir)
+    plugins = glob.glob(plugin_dir+os.sep+'*')
 
-    plugins.remove('__pycache__')
     plugins.remove('template.py')
     plugins.remove('spys_one.py') # currently broken USE SELENIUM INSTEAD OF RETARDED DEOBSF
 
