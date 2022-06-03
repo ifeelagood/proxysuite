@@ -9,7 +9,6 @@ from urllib.parse import urlparse
 import pathlib
 
 import requests
-import urllib3
 
 import re
 import json
@@ -21,7 +20,7 @@ from logger import log
 # constants
 global dead_exceptions, http_url, https_url
 
-dead_exceptions = (urllib3.exceptions.NewConnectionError, urllib3.exceptions.MaxRetryError, socks.GeneralProxyError, urllib3.exceptions.HTTPError)
+dead_exceptions = (requests.exceptions.ConnectionError, requests.exceptions.HTTPError, socks.GeneralProxyError, requests.exceptions.ChunkedEncodingError, requests.exceptions.ProxyError, socks.ProxyConnectionError, urllib3.exceptions.ConnectTimeoutError, requests.exceptions.SSLError, requests.exceptions.ReadTimeout, requests.exceptions.TooManyRedirects)
 http_url = "http://api.ipify.org"
 https_url = "https://api.ipify.org"
 
@@ -31,15 +30,10 @@ class Proxy():
 
     def __init__(self, address, source=None):
 
-        urlp = urlparse(address)
-
         self.address = address
-        self.scheme = urlp.scheme
+        self.scheme = urlparse(address).scheme
 
-        netloc = urlp.netloc.split(':')
-
-        self.host, self.port = str(netloc[0]), int(netloc[1])
-
+        self.host, self.port = urlparse(address).netloc.split(':')
         self.working = False
         self.borked = False
         self.http = None
@@ -48,7 +42,7 @@ class Proxy():
         self.location = None
         self.fraud_score = None
 
-        self.proxy_dict = None # temporary to keep compatibility with main branch
+        self.proxy_dict = {'http': self.address, 'https': self.address}
 
         self.source = source
 
@@ -56,10 +50,8 @@ class Proxy():
     def get(self, url):
 
         try:
-            r = self.pm.request('GET', url)
-            if r.status != 200:
-                raise urllib3.exceptions.HTTPError("Non-200 HTTP code returned")
-
+            r = requests.get(url, proxies=self.proxy_dict, timeout=args.timeout)
+            r.raise_for_status()
             return r
 
         except dead_exceptions:
@@ -71,7 +63,7 @@ class Proxy():
         r = self.get(f"https://ipapi.co/{self.host}/json/")
 
         if r:
-            whois = json.loads(r.data.decode('ascii'))
+            whois = json.loads(r.text)
 
             self.country_code = whois['country_code']
             self.location = (whois['latitude'], whois['longitude'])
@@ -87,7 +79,7 @@ class Proxy():
         r = self.get(f"https://scamalytics.com/ip/{self.host}")
 
         if r:
-            soup = BeautifulSoup(r.data.decode('utf-8'), 'html.parser')
+            soup = BeautifulSoup(r.text, 'html.parser')
             fraud_score_string = soup.find("div", {"class": "score"}).contents[0]
             fraud_score = int(re.search(r'(?<=Fraud Score: ).*', fraud_score_string)[0])
 
@@ -100,13 +92,6 @@ class Proxy():
 
 
     def check(self):
-
-        if self.scheme in ('http', 'https'):
-            pm_func = urllib3.ProxyManager
-        else:
-            pm_func = urllib3.contrib.socks.SOCKSProxyManager
-
-        self.pm = pm_func(self.address) # TODO must set here as when loading, init function not run
 
         # HTTP
         if self.get(http_url):
@@ -126,7 +111,6 @@ class Proxy():
             self.working = True
         else:
             self.working = False
-            del self.pm
             return False
 
 
@@ -144,7 +128,6 @@ class Proxy():
             if not self.fraud_lookup():
                 self.borked = True # passed ssl but failed this
 
-        del self.pm # TODO fixme
         return True
 
 
