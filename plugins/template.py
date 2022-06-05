@@ -13,7 +13,6 @@ class Grabber():
 
         self.types = types
         self.exceptions = []
-  
         self.name = "template"
 
     def grab_all(self):
