@@ -18,7 +18,7 @@ parser.add_argument('-i', '--input', type=pathlib.Path, default=None, metavar="I
 
 # checker
 parser.add_argument('-b', '--basic', action='store_true', default=False, help="Use only HTTP and SSL test when checking proxies") # couldnt get py3.9 argparse.BooleanOptionalAction to work TODO
-parser.add_argument('-T', '--threads', type=int, default=200, metavar="COUNT", help="Specify number of threads to be used when checkinh proxies (WARNING->Setting this too high will cause problems!)")
+parser.add_argument('-L', '--connection-limit', type=int, default=1024, metavar="LIMIT", help="Specify limit of open sessions. helps with 'Too many open files'")
 parser.add_argument('-t', '--timeout', type=int, default=15, metavar="SECONDS", help="Specify request timeout in seconds when checking proxies")
 
 # logging

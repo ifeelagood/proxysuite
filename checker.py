@@ -1,8 +1,14 @@
 import threading
 
-from queue import Queue
+import asyncio
+import aiohttp
+import aiohttp_socks
 
-from proxy import Proxy, load_proxies
+from bs4 import BeautifulSoup
+import json
+import re
+
+from proxy import load_proxies
 from arguments import args
 from logger import log
 
@@ -29,72 +35,147 @@ def worker(q, lock, live):
 
 class ProgressThread(threading.Thread):
 
-    def __init__(self, event, q, live):
+    def __init__(self, event, unchecked, checker_thread):
         threading.Thread.__init__(self)
 
-        self.queue = q
-        self.live = live
-        self.startcount = q.qsize()
+        self.total = len(unchecked)
+        self.checker_thread = checker_thread
 
         self.stopped = event
 
+
     def run(self):
+
         while not self.stopped.wait(10):
             self.report_progress()
 
-            # call a function
 
     def report_progress(self):
-        live = len(self.live)
-        remaining = self.queue.qsize()
-        done = self.startcount - remaining
-        progress = done / self.startcount
+
+        done = self.checker_thread.completed
+        remaining = self.total - done
+        progress = done / self.total
         progress_perc = round(progress * 100, 2)
 
-        log.info(f"{progress_perc}%\tChecked: {done} - Remaining: {remaining} - Live: {live}")
+        log.info(f"{progress_perc}%\tChecked: {done} - Remaining: {remaining}")
+
+
+class CheckerThread(threading.Thread):
+
+    def __init__(self, proxies):
+        threading.Thread.__init__(self)
+
+        self.completed = 0
+        self.active = 0
+
+
+        loop = asyncio.get_event_loop()
+        tasks = [asyncio.ensure_future(self.check(p)) for p in proxies]
+
+        log.debug("Created tasks. Running")
+        loop.run_until_complete(asyncio.wait(tasks))
+
+
+
+    async def get(self, session, url):
+
+        try:
+            async with session.get(url) as resp:
+                return await resp.text()
+
+        except Exception as e:
+            return None
+
+
+    async def check(self, proxy):
+
+        if self.active > args.connection_limit:
+            while self.active > args.connection_limit:
+                await asyncio.sleep(5) # check every 5 seconds to see if space is available
+
+        self.active += 1
+
+        http_url = 'http://api.ipify.org'
+        ssl_url = 'https://api.ipify.org'
+
+
+        proxy_connector = aiohttp_socks.ProxyConnector.from_url(proxy.address)
+        session = aiohttp.ClientSession(connector=proxy_connector, timeout=aiohttp.ClientTimeout(total=args.timeout, sock_connect=args.timeout))
+
+        if await self.get(session, http_url) == proxy.host:
+            proxy.http = True
+        else:
+            proxy.http = False
+
+        if await self.get(session, ssl_url):
+            proxy.ssl = True
+        else:
+            proxy.ssl = False
+
+
+        # evaluate
+        if proxy.ssl or proxy.http:
+            proxy.working = True
+            log.info(f"[LIVE] {proxy}")
+        else:
+            log.debug(f"[DEAD], {proxy}")
+            proxy.working = False
+
+
+        if not args.basic and proxy.ssl:
+
+            # TODO fixme
+
+            r = await self.get(session, f"https://scamalytics.com/ip/{proxy.host}")
+
+            if r:
+                soup = BeautifulSoup(r, 'html.parser')
+                fraud_score_string = soup.find("div", {"class": "score"}).contents[0]
+                fraud_score = int(re.search(r'(?<=Fraud Score: ).*', fraud_score_string)[0])
+
+                proxy.fraud_score = fraud_score
+
+            r = await self.get(session, f"https://ipapi.co/{proxy.host}/json/")
+
+            if r:
+                whois = json.loads(r.text)
+
+                proxy.country_code = whois['country_code']
+                proxy.location = (whois['latitude'], whois['longitude'])
+
+        await session.close()
+
+        self.active -= 1
+        self.completed += 1
+
+        return proxy
 
 
 def check_all():
 
     unchecked = load_proxies(args.input)
-    log.debug(f"Loaded proxies from file {args.input}")
-
-    live = []
-
-    q = Queue()
-
-    for p in unchecked:
-        q.put(p)
+    log.debug(f"Loaded {len(unchecked)} proxies from file {args.input}")
 
 
-    stop_flag = threading.Event()
-    progress_thread = ProgressThread(stop_flag, q, live)
+    checker_thread = CheckerThread(unchecked)
+
+    event = threading.Event()
+    progress_thread = ProgressThread(event, unchecked, checker_thread)
+
+    checker_thread.start()
+    log.debug("started checker thread")
+
     progress_thread.start()
+    log.debug("started progress thread")
 
-    log.debug("Started progress monitoring thread")
+    checker_thread.join()
+    log.debug("checker thread terminated")
 
-    lock = threading.Lock()
+    event.set()
 
-    threads = [threading.Thread(target=worker, args=(q, lock, live)) for _ in range(args.threads)]
-
-    log.debug("Created checker threads")
-
-    for x in threads:
-        x.start()
-
-    log.debug("Started checker threads, joining")
-
-    for x in threads:
-        x.join()
-
-    log.debug("Checker threads exited successfully")
-
-    log.debug("Waiting for progress thread to terminate...")
-
-    stop_flag.set()
     progress_thread.join()
+    log.debug("progress thread terminated")
 
-    log.debug("Progress thread exited successfully")
-
+    live = [p for p in unchecked if p.working]
 
     return live
