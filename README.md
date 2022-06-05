@@ -8,12 +8,11 @@ Install requirements with `pip3 install -r requirements.txt`
 
 `python3 main.py {check,gather}`
 
-* Gather uses the plugins in the `plugins/` directory to gather and save proxies to a file (by default `output/scraped.txt`).
+* Gather uses the plugins in the `plugins/` directory to gather and save proxies to a file (by default `output/scraped.json`).
 
 * Check reads an input file (default `output/scraped.json`) and checks them on multiple threads, then writing all working proxies to an output file (default `output/live.json` and `output/raw/(http|socks4|socks5).txt`) once complete.
 
 **PLEASE RUN `python3 main.py --help` FOR A FULL LIST AND EXPLAINATION OF CLI ARGS**
-
 
 
 Design
@@ -45,7 +44,7 @@ FAQ / Notes
 
 **Q:** *What is the open connection limit (-L)? Which value for this is safe?*
 
-**A:** As this code is asynchronous, if no limit was set the code would keep opening connections for each proxy until the list is exhausted. This leads to the OS Error "Too many open files", as well as sending way too many packets. Through tests I've determined setting this too high can introduce false positives, so I suggest lowering this and testing if the results change.
+**A:** As this code is asynchronous, if no limit was set the code would keep opening connections for each proxy until the list is exhausted. This leads to the OS Error "Too many open files", as well as sending way too many packets. This setting introduces a wait period while the active connections if above the threshold. Through tests I've determined setting this too high can introduce false positives, so I suggest lowering this and testing if the results change.
 
 TL;DR, It depends on OS limits for open files and internet connection, but 1024 is considered 'safe' by me and you can increase it to whatever without any lasting damage
 
@@ -66,5 +65,7 @@ Planned Upgrades
 - [X] Move proxy functions outside class
 - [X] Create proxy object dump utility
 - [X] Create asynchronous branch
+- [ ] Load arguments only on main.py
+- [ ] Simple GUI
 
 and more...
