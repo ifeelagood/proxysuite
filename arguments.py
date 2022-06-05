@@ -29,6 +29,8 @@ parser.add_argument('--log-path', type=pathlib.Path, default=pathlib.Path("proxy
 parser.add_argument('-q', '--quiet', action='store_true', default=False, help="Disable console/stdout logging") # supress stdout
 parser.add_argument('-s', '--silent', action='store_true', default=False, help="Disable logging") # supress stdout and log
 
+parser.add_argument('-A', '--append-log', action='store_true', default=False, help="Disable clearing of log file on runtime")
+
 # selenium
 parser.add_argument('--webdriver', choices=['chrome', 'firefox'], help="Specify webdriver used for selenium plugins")
 parser.add_argument('--selenium-headless', action='store_true', default=False, help="Enable headless excecution of selenium plugins. compatible only with 'chrome' webdriver")
