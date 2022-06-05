@@ -21,15 +21,14 @@ def checker_runner():
 
     proxy.dump_to_lists(checked)
 
-    log.info(f"Written output of check to plain text files")
+    log.info("Written output of check to plain text files")
 
 
 def gather_runner():
 
     # gathered = plugins.__init__.__gather_all__(args, log)
     gathered = gather.gather_all()
-    log.debug(f"gather completed. attempting to write to file...")
-
+    log.debug("Gather completed. attempting to write to file...")
 
     proxy.dump_proxies(gathered, args.output)
 
@@ -43,15 +42,27 @@ def create_output_dirs():
     output_dirs = ["output", "output/raw"]
 
     for p in output_dirs:
-        f(p)
-        log.info(f"Created missing directory '{p}'")
+        if f(p):
+            log.info(f"Created missing directory '{p}'")
 
     # yes, os.makedirs is faster. fuck you
+
+
+def clear_log():
+
+    if not args.append_log:
+        with open(args.log_path, 'w', encoding='utf-8') as f:
+            f.truncate()
+            log.debug(f"Cleared log file at {args.log_path}")
+    else:
+        log.info(f"Appending to current log, {args.log_path} not cleared")
 
 
 if __name__ == '__main__':
 
     verify_logger_args()
+
+    clear_log()
 
     create_output_dirs()
 
