@@ -109,10 +109,8 @@ def load_proxies(infile=pathlib.Path("output/proxyobjects.json")):
         try:
             p = load_proxy_from_dict(p_dict)
             proxy_list.append(p)
-        except:
-            pass
-
-        #TODO fix this. NOW
+        except Exception():
+            log.exception(f"Proxy from file {infile} threw execption while loading. Relevant JSON object: {p_dict}. Printing trace: ")
 
     return proxy_list
 
@@ -125,13 +123,17 @@ def dump_to_lists(object_list):
 
     for p in object_list:
 
-        if p.scheme == 'http': http_f.write(p["address"] + '\n')
-        if p.scheme == 'socks4': socks4_f.write(p["address"] + '\n')
-        if p.scheme == 'socks5': socks5_f.write(p["address"] + '\n')
+        if p.scheme == 'http':
+            http_f.write(p.address + '\n')
+        if p.scheme == 'socks4':
+            socks4_f.write(p.address + '\n')
+        if p.scheme == 'socks5':
+            socks5_f.write(p.address + '\n')
 
     http_f.close()
     socks4_f.close()
     socks5_f.close()
+
 
 def construct_object_list(address_list, sourcename):
 
