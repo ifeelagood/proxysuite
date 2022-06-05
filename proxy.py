@@ -78,7 +78,7 @@ def validate_address(address):
 
     valid_netloc = len(netloc) == 2
     valid_scheme = urlparse(address).scheme in protocols
-    valid_port = netloc[1] >= 2**16-1
+    valid_port = int(netloc[1]) >= 2**16-1
 
     # TODO fix this monstrosity
 
@@ -105,7 +105,6 @@ def load_proxies(infile=pathlib.Path("output/proxyobjects.json")):
     for p_dict in proxy_list_raw:
         try:
             p = load_proxy_from_dict(p_dict)
-            p.pconnector = aiohttp_socks.ProxyConnector.from_url(p.address)
             proxy_list.append(p)
         except:
             pass
