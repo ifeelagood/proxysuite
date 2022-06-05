@@ -80,7 +80,7 @@ def validate_address(address):
     valid_scheme = urlparse(address).scheme in protocols
 
     if valid_netloc:
-        valid_port = int(netloc[1]) >= 2**16-1
+        valid_port = int(netloc[1]) <= 2**16-1
     else:
         valid_port = False
 
