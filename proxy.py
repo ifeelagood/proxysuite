@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import sys
-import struct
 import ssl, socket, socks, urllib3 # exceptions
 
 from bs4 import BeautifulSoup
@@ -9,6 +8,10 @@ from urllib.parse import urlparse
 import pathlib
 
 import requests
+
+import asyncio
+import aiohttp
+import aiohttp_socks
 
 import re
 import json
@@ -42,20 +45,14 @@ class Proxy():
         self.location = None
         self.fraud_score = None
 
-        self.proxy_dict = {'http': self.address, 'https': self.address}
+        self.proxy_dict = None # temp to maintain compat. with old.
 
         self.source = source
 
 
-    def get(self, url):
+    def __str__(self):
+        return self.address
 
-        try:
-            r = requests.get(url, proxies=self.proxy_dict, timeout=args.timeout)
-            r.raise_for_status()
-            return r
-
-        except dead_exceptions:
-            return False
 
 
     def whois(self):
@@ -91,45 +88,6 @@ class Proxy():
             return False
 
 
-    def check(self):
-
-        # HTTP
-        if self.get(http_url):
-            self.http = True
-        else:
-            self.http = False
-
-
-        # SSL
-        if self.get(https_url):
-            self.ssl = True
-        else:
-            self.ssl = False
-
-        # evaluate
-        if self.ssl or self.http:
-            self.working = True
-        else:
-            self.working = False
-            return False
-
-
-        # if proxy is dead it should not get past this point
-        # dont bother with whois etc if not ssl as:
-        #    site requires ssl
-        #    basically worthless if not ssl
-
-        # advanced check
-        if self.ssl and not args.basic:
-
-            if not self.whois():
-                self.borked = True # passed ssl but failed this
-
-            if not self.fraud_lookup():
-                self.borked = True # passed ssl but failed this
-
-        return True
-
 
 def load_proxy_from_dict(proxy_dict, cls=Proxy):
 
@@ -151,7 +109,16 @@ def validate_address(address):
 
     protocols = ['http', 'https', 'socks4', 'socks5']
 
-    valid = (len(urlparse(address).netloc.split(':')) == 2) and (urlparse(address).scheme in protocols)
+    netloc = urlparse(address).netloc.split(':')
+
+    valid_netloc = len(netloc) == 2
+    valid_scheme = urlparse(address).scheme in protocols
+    valid_port = netloc[1] >= 2**16-1
+
+    # TODO fix this monstrosity
+
+    valid = (valid_netloc and valid_scheme and valid_port)
+
 
     return valid
 
@@ -171,8 +138,14 @@ def load_proxies(infile=pathlib.Path("output/proxyobjects.json")):
 
     proxy_list = []
     for p_dict in proxy_list_raw:
-        p = load_proxy_from_dict(p_dict)
-        proxy_list.append(p)
+        try:
+            p = load_proxy_from_dict(p_dict)
+            p.pconnector = aiohttp_socks.ProxyConnector.from_url(p.address)
+            proxy_list.append(p)
+        except:
+            pass
+
+        #TODO fix this. NOW
 
     return proxy_list
 

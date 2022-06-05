@@ -1,0 +1,1 @@
+[{"address": "http://1.1.1.1:8080", "scheme": "http", "host": "1.1.1.1", "port": "8080", "working": false, "borked": false, "http": null, "ssl": null, "country_code": null, "location": null, "fraud_score": null, "proxy_dict": {"http": "http://1.1.1.1:8080", "https": "http://1.1.1.1:8080"}, "source": "your mum"}]
