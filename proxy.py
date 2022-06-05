@@ -66,7 +66,6 @@ def load_proxy_from_dict(proxy_dict, cls=Proxy):
     return instance
 
 
-
 def validate_address(address):
 
     # validate_regex = r'(http|https|socks4|socks5):\/\/((\d{1,3})(\.\d{1,3}){3}):((\d{1,5}))'
@@ -117,6 +116,22 @@ def load_proxies(infile=pathlib.Path("output/proxyobjects.json")):
 
     return proxy_list
 
+
+def dump_to_lists(object_list):
+
+    http_f = open("output/raw/http.txt", 'w', encoding='utf-8')
+    socks4_f = open("output/raw/socks4.txt", 'w', encoding='utf-8')
+    socks5_f = open("output/raw/socks5.txt", 'w', encoding='utf-8')
+
+    for p in object_list:
+
+        if p.scheme == 'http': http_f.write(p["address"] + '\n')
+        if p.scheme == 'socks4': socks4_f.write(p["address"] + '\n')
+        if p.scheme == 'socks5': socks5_f.write(p["address"] + '\n')
+
+    http_f.close()
+    socks4_f.close()
+    socks5_f.close()
 
 def construct_object_list(address_list, sourcename):
 

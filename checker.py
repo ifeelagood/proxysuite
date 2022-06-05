@@ -1,18 +1,17 @@
 import threading
-import time
-
-from queue import Queue
-
-from proxy import Proxy, load_proxies
-from arguments import args
-from logger import log
-
 
 import asyncio
 import aiohttp
 import aiohttp_socks
 
-import python_socks
+from bs4 import BeautifulSoup
+import json
+import re
+
+from proxy import load_proxies
+from arguments import args
+from logger import log
+
 
 def worker(q, lock, live):
 
@@ -122,6 +121,27 @@ class CheckerThread(threading.Thread):
             log.debug(f"[DEAD], {proxy}")
             proxy.working = False
 
+
+        if not args.basic and proxy.ssl:
+
+            # TODO fixme
+
+            r = await self.get(session, f"https://scamalytics.com/ip/{proxy.host}")
+
+            if r:
+                soup = BeautifulSoup(r, 'html.parser')
+                fraud_score_string = soup.find("div", {"class": "score"}).contents[0]
+                fraud_score = int(re.search(r'(?<=Fraud Score: ).*', fraud_score_string)[0])
+
+                proxy.fraud_score = fraud_score
+
+            r = await self.get(session, f"https://ipapi.co/{proxy.host}/json/")
+
+            if r:
+                whois = json.loads(r.text)
+
+                proxy.country_code = whois['country_code']
+                proxy.location = (whois['latitude'], whois['longitude'])
 
         await session.close()
 
