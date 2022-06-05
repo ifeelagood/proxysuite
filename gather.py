@@ -3,7 +3,6 @@
 import os
 import glob
 import threading
-import re
 import imp
 
 import proxy
@@ -24,9 +23,7 @@ def gather_all():
 
     address_list = []
 
-    for i,plugin_name in enumerate(plugins):
-
-        plugin_path = "plugins" + os.sep + plugin_name
+    for i,plugin_path in enumerate(plugins):
 
         x = threading.Thread(target=worker, args=(plugin_path, address_list, lock))
         threads.append(x)
@@ -39,7 +36,7 @@ def gather_all():
     for i,x in enumerate(threads):
         x.join()
 
-    log.debug("All threads released for plugins")
+    log.debug("Plugin threads terminated")
 
     gather_plain_sources(address_list)
 
@@ -54,10 +51,10 @@ def gather_all():
 
 def load_plugins(plugin_dir="plugins"):
 
-    plugins = glob.glob(plugin_dir+os.sep+'*')
+    plugins = glob.glob(plugin_dir+os.sep+'*.py')
 
-    plugins.remove('template.py')
-    plugins.remove('spys_one.py') # currently broken USE SELENIUM INSTEAD OF RETARDED DEOBSF
+    plugins.remove('plugins/template.py')
+    plugins.remove('plugins/spys_one.py') # currently broken USE SELENIUM INSTEAD OF RETARDED DEOBSF
 
     if args.disable_plugins:
         for plugin in args.disable_plugins.split(','):
@@ -99,7 +96,7 @@ def worker(plugin_path, address_list, lock):
     except Exception:
         log.exception(f"Failed to gather proxies for source '{plugin_path}'. Printing trace: ")
         log.warning(f"Continuing after error, results for plugin '{plugin_path}' not scraped")
-        log.warning(f"Consider disabling plugin with arguments '--disable-plugins {plugin_path.split('/')}'")
+        log.warning(f"Consider disabling plugin with arguments '--disable-plugins {plugin_path}'")
         return
 
     thread_address_list = [(address, g.name) for address in raw_thread_address_list]
