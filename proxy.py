@@ -45,48 +45,13 @@ class Proxy():
         self.location = None
         self.fraud_score = None
 
-        self.proxy_dict = None # temp to maintain compat. with old.
+        self.proxy_dict = None # temp to maintain compat. with old
 
         self.source = source
 
 
     def __str__(self):
         return self.address
-
-
-
-    def whois(self):
-
-        r = self.get(f"https://ipapi.co/{self.host}/json/")
-
-        if r:
-            whois = json.loads(r.text)
-
-            self.country_code = whois['country_code']
-            self.location = (whois['latitude'], whois['longitude'])
-
-            return True
-
-        else:
-            return False
-
-
-    def fraud_lookup(self):
-
-        r = self.get(f"https://scamalytics.com/ip/{self.host}")
-
-        if r:
-            soup = BeautifulSoup(r.text, 'html.parser')
-            fraud_score_string = soup.find("div", {"class": "score"}).contents[0]
-            fraud_score = int(re.search(r'(?<=Fraud Score: ).*', fraud_score_string)[0])
-
-            self.fraud_score = fraud_score
-
-            return True
-
-        else:
-            return False
-
 
 
 def load_proxy_from_dict(proxy_dict, cls=Proxy):
