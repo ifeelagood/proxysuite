@@ -8,29 +8,11 @@ from bs4 import BeautifulSoup
 import json
 import re
 
+import tqdm
+
 from proxy import load_proxies
 from arguments import args
 from logger import log
-
-
-def worker(q, lock, live):
-
-    while not q.empty():
-
-        p = q.get()
-
-        if p.check():
-
-            log.info(f"[LIVE] {p.address}")
-
-            lock.acquire()
-            live.append(p)
-            lock.release()
-
-        else:
-            log.debug(f"[DEAD] {p.address}")
-
-        q.task_done()
 
 
 class ProgressThread(threading.Thread):
@@ -39,6 +21,9 @@ class ProgressThread(threading.Thread):
         threading.Thread.__init__(self)
 
         self.total = len(unchecked)
+
+        self.pbar = tqdm.tqdm(desc="[INFO] ", total=self.total) # i hate myself
+
         self.checker_thread = checker_thread
 
         self.stopped = event
@@ -49,15 +34,14 @@ class ProgressThread(threading.Thread):
         while not self.stopped.wait(10):
             self.report_progress()
 
+        self.pbar.close()
+
 
     def report_progress(self):
 
         done = self.checker_thread.completed
-        remaining = self.total - done
-        progress = done / self.total
-        progress_perc = round(progress * 100, 2)
 
-        log.info(f"{progress_perc}%\tChecked: {done} - Remaining: {remaining}")
+        self.pbar.update(done)
 
 
 class CheckerThread(threading.Thread):
@@ -68,13 +52,16 @@ class CheckerThread(threading.Thread):
         self.completed = 0
         self.active = 0
 
+        self.loop = asyncio.get_event_loop()
+        self.tasks = [asyncio.ensure_future(self.check(p)) for p in proxies]
 
-        loop = asyncio.get_event_loop()
-        tasks = [asyncio.ensure_future(self.check(p)) for p in proxies]
+        log.debug("Created tasks")
 
-        log.debug("Created tasks. Running")
-        loop.run_until_complete(asyncio.wait(tasks))
 
+    def start(self):
+
+        log.debug("starting async check")
+        self.loop.run_until_complete(asyncio.wait(self.tasks))
 
 
     async def get(self, session, url):
@@ -118,7 +105,7 @@ class CheckerThread(threading.Thread):
             proxy.working = True
             log.info(f"[LIVE] {proxy}")
         else:
-            log.debug(f"[DEAD], {proxy}")
+            log.debug(f"[DEAD] {proxy}")
             proxy.working = False
 
 
@@ -153,7 +140,13 @@ class CheckerThread(threading.Thread):
 
 def check_all():
 
-    unchecked = load_proxies(args.input)
+    if args.pickle:
+        log.debug("Unpickling...")
+        unchecked = load_proxies_pickle(args.input)
+    else:
+        unchecked = load_proxies(args.input)
+
+
     log.debug(f"Loaded {len(unchecked)} proxies from file {args.input}")
 
 
@@ -162,11 +155,11 @@ def check_all():
     event = threading.Event()
     progress_thread = ProgressThread(event, unchecked, checker_thread)
 
-    checker_thread.start()
-    log.debug("started checker thread")
-
     progress_thread.start()
     log.debug("started progress thread")
+
+    checker_thread.start()
+    log.debug("started checker thread")
 
     checker_thread.join()
     log.debug("checker thread terminated")

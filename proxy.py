@@ -3,6 +3,8 @@
 import sys
 import ssl, socket, socks, urllib3 # exceptions
 
+import pickle
+
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import pathlib
@@ -111,6 +113,20 @@ def load_proxies(infile=pathlib.Path("output/proxyobjects.json")):
             proxy_list.append(p)
         except Exception():
             log.exception(f"Proxy from file {infile} threw execption while loading. Relevant JSON object: {p_dict}. Printing trace: ")
+
+    return proxy_list
+
+
+def dump_proxies_pickle(proxies, outfile=pathlib.Path("output/proxyobjects.pkl")):
+
+    with open(outfile, 'wb') as f:
+        pickle.dump(f)
+
+
+def load_proxies_pickle(proxies, infile=pathlib.Path("output/proxyobjects.pkl")):
+
+    with open(infile, 'rb') as f:
+        proxy_list = pickle.load(f)
 
     return proxy_list
 

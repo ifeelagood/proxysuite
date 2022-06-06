@@ -40,7 +40,6 @@ def gather_all():
 
     gather_plain_sources(address_list)
 
-
     log.debug("Filtering addresses and creating proxy objects")
     filtered_proxy_list = [proxy.Proxy(t[0],t[1]) for t in address_list if proxy.validate_address(t[0])]
 
@@ -58,12 +57,11 @@ def load_plugins(plugin_dir="plugins"):
 
     if args.disable_plugins:
         for plugin in args.disable_plugins.split(','):
-            if plugin[-2:] == 'py':
-                if plugin in plugins:
-                    plugins.remove(plugin)
-                    log.debug(f"Disabled plugin {plugin}")
-                else:
-                    log.warning(f"Plugin specified for disable '{plugin}' not found. Continuing...")
+            if plugin in plugins:
+                plugins.remove(plugin)
+                log.debug(f"Disabled plugin {plugin}")
+            else:
+                log.warning(f"Plugin specified for disable '{plugin}' not found. Continuing...")
 
     if args.no_selenium:
         plugins.remove('cyberhub_pw.py') #TODO dynamically do this

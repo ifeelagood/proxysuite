@@ -15,7 +15,11 @@ def checker_runner():
     checked = checker.check_all()
     log.debug("check completed. attempting to write to file...")
 
-    proxy.dump_proxies(checked, args.output)
+    if args.pickle:
+        log.debug("Pickling...")
+        proxy.dump_proxies_pickle(checked, args.output)
+    else:
+        proxy.dump_proxies(checked, args.output)
 
     log.info(f"Written output of check to {args.output}")
 
@@ -30,7 +34,11 @@ def gather_runner():
     gathered = gather.gather_all()
     log.debug("Gather completed. attempting to write to file...")
 
-    proxy.dump_proxies(gathered, args.output)
+    if args.pickle:
+        log.debug("Pickling...")
+        proxy.dump_proxies_pickle(gathered, args.output)
+    else:
+        proxy.dump_proxies(gathered, args.output)
 
     log.info(f"Written output of gather to {args.output}")
 
