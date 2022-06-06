@@ -47,7 +47,7 @@ def worker(q, lock, grabbed):
 
         url, protocol = q.get()
 
-        url_grabbed = scrape_site(url, type)
+        url_grabbed = scrape_site(url, protocol)
 
         if not isinstance(url_grabbed, list):
             log.warning(f"URL '{url}' raised exception while attempting to connect: {url_grabbed}")
