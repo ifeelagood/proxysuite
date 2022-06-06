@@ -15,7 +15,7 @@ parser.add_argument('action', choices=['check', 'gather'], help="Check proxies f
 # IO
 parser.add_argument('-o', '--output', type=pathlib.Path, default=None, metavar="OUTPUT_PATH", help="Specify file path to be written to")
 parser.add_argument('-i', '--input', type=pathlib.Path, default=None, metavar="INPUT_PATH", help="Specify file path to be read from")
-parser.add_argument('-p', '--pickle', action='store_true', default=False, metavar="PICKLE", help="Use pickle (object to datastream) to dump/load IO. Reduces file size. WARNING: NOT SECURE. DO NOT LOAD ANYTHING YOU DIDN'T CREATE YOURSELF")
+parser.add_argument('-p', '--pickle', action='store_true', default=False, help="Use pickle (object to datastream) to dump/load IO. Reduces file size. WARNING: NOT SECURE. DO NOT LOAD ANYTHING YOU DIDN'T CREATE YOURSELF")
 
 # checker
 parser.add_argument('-b', '--basic', action='store_true', default=False, help="Use only HTTP and SSL test when checking proxies") # couldnt get py3.9 argparse.BooleanOptionalAction to work TODO
@@ -31,6 +31,8 @@ parser.add_argument('-q', '--quiet', action='store_true', default=False, help="D
 parser.add_argument('-s', '--silent', action='store_true', default=False, help="Disable logging") # supress stdout and log
 
 parser.add_argument('-A', '--append-log', action='store_true', default=False, help="Disable clearing of log file on runtime")
+
+parser.add_argument('--progress', action='store_true', default=False, help="Enable progress bar while checking.")
 
 # selenium
 parser.add_argument('--webdriver', choices=['chrome', 'firefox'], help="Specify webdriver used for selenium plugins")

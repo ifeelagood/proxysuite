@@ -4,13 +4,15 @@ import asyncio
 import aiohttp
 import aiohttp_socks
 
+import uvloop
+
 from bs4 import BeautifulSoup
 import json
 import re
 
 import tqdm
 
-from proxy import load_proxies
+from proxy import load_proxies, load_proxies_pickle
 from arguments import args
 from logger import log
 
@@ -22,7 +24,7 @@ class ProgressThread(threading.Thread):
 
         self.total = len(unchecked)
 
-        self.pbar = tqdm.tqdm(desc="[INFO] ", total=self.total) # i hate myself
+        self.pbar = tqdm.tqdm(desc="", total=self.total) # i hate myself
 
         self.checker_thread = checker_thread
 
@@ -31,7 +33,7 @@ class ProgressThread(threading.Thread):
 
     def run(self):
 
-        while not self.stopped.wait(10):
+        while not self.stopped.wait(1):
             self.report_progress()
 
         self.pbar.close()
@@ -52,7 +54,9 @@ class CheckerThread(threading.Thread):
         self.completed = 0
         self.active = 0
 
-        self.loop = asyncio.get_event_loop()
+        self.loop = uvloop.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+
         self.tasks = [asyncio.ensure_future(self.check(p)) for p in proxies]
 
         log.debug("Created tasks")
@@ -152,11 +156,12 @@ def check_all():
 
     checker_thread = CheckerThread(unchecked)
 
-    event = threading.Event()
-    progress_thread = ProgressThread(event, unchecked, checker_thread)
+    if args.progress:
+        event = threading.Event()
+        progress_thread = ProgressThread(event, unchecked, checker_thread)
 
-    progress_thread.start()
-    log.debug("started progress thread")
+        progress_thread.start()
+        log.debug("started progress thread")
 
     checker_thread.start()
     log.debug("started checker thread")
@@ -164,10 +169,12 @@ def check_all():
     checker_thread.join()
     log.debug("checker thread terminated")
 
-    event.set()
+    if args.progress:
+        event.set()
 
-    progress_thread.join()
-    log.debug("progress thread terminated")
+        progress_thread.join()
+
+        log.debug("progress thread terminated")
 
     live = [p for p in unchecked if p.working]
 

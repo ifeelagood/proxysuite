@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 
+import pickle
+
 import sys
 import ssl, socket, socks, urllib3 # exceptions
 
-import pickle
 
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
@@ -120,10 +121,10 @@ def load_proxies(infile=pathlib.Path("output/proxyobjects.json")):
 def dump_proxies_pickle(proxies, outfile=pathlib.Path("output/proxyobjects.pkl")):
 
     with open(outfile, 'wb') as f:
-        pickle.dump(f)
+        pickle.dump(proxies, f)
 
 
-def load_proxies_pickle(proxies, infile=pathlib.Path("output/proxyobjects.pkl")):
+def load_proxies_pickle(infile=pathlib.Path("output/proxyobjects.pkl")):
 
     with open(infile, 'rb') as f:
         proxy_list = pickle.load(f)
