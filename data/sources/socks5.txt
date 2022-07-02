@@ -4,5 +4,6 @@ https://www.proxy-list.download/api/v1/get?type=socks5
 https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/socks5.txt
 https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks5.txt
 https://raw.githubusercontent.com/hookzof/socks5_list/master/proxy.txt
+https://raw.githubusercontent.com/RX4096/proxy-list/main/online/socks5.txt
 https://www.proxyscan.io/download?type=socks5
 https://proxylist.live/nodes/socks5_2.php?showall=1

@@ -1,10 +1,9 @@
+import sys
 import threading
 
 import asyncio
 import aiohttp
 import aiohttp_socks
-
-import uvloop
 
 from bs4 import BeautifulSoup
 import json
@@ -15,6 +14,11 @@ import tqdm
 from proxy import load_proxies, load_proxies_pickle
 from arguments import args
 from logger import log
+
+try:
+    import uvloop
+except ImportError:
+    log.warning("import uvloop failed. This will significantly decrease performance. Try install if supported on your platform")
 
 
 class ProgressThread(threading.Thread):
@@ -54,7 +58,11 @@ class CheckerThread(threading.Thread):
         self.completed = 0
         self.active = 0
 
-        self.loop = uvloop.new_event_loop()
+        if "uvloop" in sys.modules:
+            self.loop = uvloop.new_event_loop()
+        else:
+            self.loop = asyncio.new_event_loop()
+
         asyncio.set_event_loop(self.loop)
 
         self.tasks = [asyncio.ensure_future(self.check(p)) for p in proxies]
@@ -165,9 +173,6 @@ def check_all():
 
     checker_thread.start()
     log.debug("started checker thread")
-
-    checker_thread.join()
-    log.debug("checker thread terminated")
 
     if args.progress:
         event.set()
