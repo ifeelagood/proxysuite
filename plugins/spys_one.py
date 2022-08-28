@@ -1,91 +1,73 @@
 #!/usr/bin/python3
 
 import re
-import requests
-from bs4 import BeautifulSoup
-from random_user_agent.user_agent import UserAgent
 
-# xx0: an md5 hash in the format \d584457
-# xpp: how many to show (500 proxies = 5)
-# xf5: proxy type (2=socks, 1=http)
+import requests
+
+import selenium.webdriver
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
+
+from bs4 import BeautifulSoup
+
+import time
+
 class Grabber():
 
-	def __init__(self, types=['http', 'socks4', 'socks5']):
+    def __init__(self):
 
-		self.types = types
-		self.exceptions = {}
-		self.headers = {'user-agent': UserAgent().get_random_user_agent()}
+        self.name = "spys_one"
 
-	def scrape_site(self, type):
+        webdriver_options = selenium.webdriver.chrome.options.Options()
+        # webdriver_options.add_argument("--headless")
 
-		scraped = []
+        self.webdriver = selenium.webdriver.Chrome(options=webdriver_options)
 
-		url = "https://spys.one/en/free-proxy-list/"
+    def scrape_page(self):
 
-		s = requests.Session()
-		s.headers.update(self.headers)
+        self.webdriver.get("https://spys.one/en/free-proxy-list/")
 
-		r = s.get(url)
-		r.raise_for_status()
+        # wait for page load
+        wait = WebDriverWait(self.webdriver, 30)
+        _ = wait.until(ec.visibility_of_element_located((By.XPATH, "//html/body/table[2]/tbody/tr[4]/td/table/tbody/tr[3]/td[1]/font")))
 
-		soup = BeautifulSoup(r.text, 'html.parser')
+        showcount_select = Select(self.webdriver.find_element(By.XPATH, "//*[@id='xpp']"))
 
-		# i have zero clue what xx0 is actually for. its an md5 hash with a random integer
-		# proceeded by 584457. e.g. 7584457
+        showcount_select.select_by_visible_text('500')
 
-		xx0 = soup.find('input', {'name': 'xx0'})['value']
-		xf5 = 1 if type == 'http' else 2
+        _ = wait.until(ec.visibility_of_element_located((By.XPATH, "//html/body/table[2]/tbody/tr[4]/td/table/tbody/tr[3]/td[1]/font")))
 
-		request_data = dict(xx0=xx0, xpp=5, xf1=0, xf2=0, xf4=0, xf5=xf5)
+        ssl_select = Select(self.webdriver.find_element(By.XPATH, "//*[@id='xf1']"))
+        ssl_select.select_by_value('1') # ssl on
 
-		r = s.post(url, data=request_data)
-		r.raise_for_status()
+        _ = wait.until(ec.visibility_of_element_located((By.XPATH, "/html/body/table[2]/tbody/tr[4]/td/table/tbody")))
 
-		soup = BeautifulSoup(r.text, 'html.parser')
+        time.sleep(2)
 
-		# tr classes:
-		# spy1xx, spy1x
-		rows_1 = soup.find_all('tr', {'class': 'spy1x'})
-		rows_2 = soup.find_all('tr', {'class': 'spy1xx'})
-		rows = rows_1 + rows_2
-		del rows[0]
+        soup = BeautifulSoup(self.webdriver.page_source, "html.parser")
 
-		obsfuscation_string = soup.body.find('script', {'type': 'text/javascript'}).contents[0].rstrip(';')
+        tbody = soup.find("td", {"colspan": "10"}).table.tbody
 
+        for tr in tbody.find_all('tr')[1:]:
 
-		# dont ask; just watch
-		obs_dict = {}
-		for line in obsfuscation_string.split(';'):
-			key, value = line.split('=')
-			if '^' in value:
-				new_value = value.split('^')[0]
-				obs_dict[key] = new_value
+            tds = tr.find_all('td')
 
-		obs_regex = r'[a-z0-9]{6}\^[a-z0-9]{4}'
+            combo = tds[0].contents()
+            protocol = tds[1].a.contents()[0]
 
-		for row in rows:
-			cols = row.find_all('td')
-
-			scheme = cols[1].a.font.contents[0].lower()
-			ip = cols[0].font.contents[0]
-			port = ''
+            print(combo, protocol)
 
 
-			for x in re.findall(obs_regex, str(cols[0].font.script)):
-				obs_num = x.split('^')[0]
-				port += obs_dict[obs_num]
-			address = f"{scheme}://{ip}:{port}"
-			scraped.append(address)
+        return None
 
-		return scraped
 
-	def grab_all(self):
+    def grab_all(self):
 
-		scraped_http = self.scrape_site('http')
-		scraped_socks = self.scrape_site('socks')
-		grabbed = scraped_http + scraped_socks
+        self.scrape_page()
 
-		dupes_removed = []
-		dupes_removed = [proxy for proxy in grabbed if proxy not in dupes_removed]
-		return dupes_removed
-
+if __name__ == '__main__':
+    g = Grabber()
+    grabbed = g.grab_all()

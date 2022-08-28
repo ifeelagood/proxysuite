@@ -1,16 +1,14 @@
 #!/usr/bin/python3
 
-import os
 import glob
-import threading
 import imp
+import os
+import threading
 
+import gather_plain as txt
 import proxy
 from arguments import args
 from logger import log
-
-import gather_plain as txt
-
 
 # address list type is list of 2 element tuples
 
@@ -41,11 +39,20 @@ def gather_all():
     gather_plain_sources(address_list)
 
     log.debug("Filtering addresses and creating proxy objects")
-    filtered_proxy_list = [proxy.Proxy(t[0],t[1]) for t in address_list if proxy.validate_address(t[0])]
 
-    log.info(f"Successfully gathered {len(filtered_proxy_list)} proxies!")
+    used_addresses = []
+    filtered_address_list = []
 
-    return filtered_proxy_list
+    for proxy_tuple in address_list:
+        if proxy_tuple[0] not in used_addresses:
+            filtered_address_list.append(proxy_tuple)
+            used_addresses.append(proxy_tuple[0])
+
+    proxy_list = [proxy.Proxy(*t) for t in filtered_address_list if proxy.validate_address(t[0])]
+
+    log.info(f"Successfully gathered {len(proxy_list)} proxies!")
+
+    return proxy_list
 
 
 def load_plugins(plugin_dir="plugins"):

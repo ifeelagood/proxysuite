@@ -23,7 +23,7 @@ def checker_runner():
 
     log.info(f"Written output of check to {args.output}")
 
-    proxy.dump_to_lists(checked)
+    proxy.dump_to_lists(checked, "live")
 
     log.info("Written output of check to plain text files")
 
@@ -41,6 +41,10 @@ def gather_runner():
         proxy.dump_proxies(gathered, args.output)
 
     log.info(f"Written output of gather to {args.output}")
+
+    proxy.dump_to_lists(gathered, "scraped")
+
+    log.info("Written output of gather to plain text files")
 
 
 def create_output_dirs():

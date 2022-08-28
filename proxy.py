@@ -132,13 +132,16 @@ def load_proxies_pickle(infile=pathlib.Path("output/proxyobjects.pkl")):
     return proxy_list
 
 
-def dump_to_lists(object_list):
+def dump_to_lists(object_list, subdirectory):
 
-    http_f = open("output/raw/http.txt", 'w', encoding='utf-8')
-    socks4_f = open("output/raw/socks4.txt", 'w', encoding='utf-8')
-    socks5_f = open("output/raw/socks5.txt", 'w', encoding='utf-8')
+    all_f = open(f"output/raw/{subdirectory}/all.txt", 'w', encoding='utf-8')
+    http_f = open(f"output/raw/{subdirectory}/http.txt", 'w', encoding='utf-8')
+    socks4_f = open(f"output/raw/{subdirectory}/socks4.txt", 'w', encoding='utf-8')
+    socks5_f = open(f"output/raw/{subdirectory}/socks5.txt", 'w', encoding='utf-8')
 
     for p in object_list:
+
+        all_f.write(p.address + '\n')
 
         if p.scheme == 'http':
             http_f.write(p.address + '\n')
@@ -147,6 +150,7 @@ def dump_to_lists(object_list):
         if p.scheme == 'socks5':
             socks5_f.write(p.address + '\n')
 
+    all_f.close()
     http_f.close()
     socks4_f.close()
     socks5_f.close()
