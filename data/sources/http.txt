@@ -14,3 +14,4 @@ https://www.proxyscan.io/download?type=http
 https://www.proxyscan.io/download?type=https
 https://proxylist.live/nodes/free_2.php?page=1&showall=1
 https://notabug.org/cyberfront/proxy-list/raw/master/http.txt
+https://rcloak.com/api/proxies/raw?protocol=http

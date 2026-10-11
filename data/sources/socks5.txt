@@ -7,3 +7,4 @@ https://raw.githubusercontent.com/hookzof/socks5_list/master/proxy.txt
 https://www.proxyscan.io/download?type=socks5
 https://proxylist.live/nodes/socks5_2.php?showall=1
 https://notabug.org/cyberfront/proxy-list/raw/master/socks5.txt
+https://rcloak.com/api/proxies/raw?protocol=socks5
